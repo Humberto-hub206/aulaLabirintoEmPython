@@ -1,28 +1,58 @@
 
 class Labirinto:
-    """Armazena o mapa e controla as regras de circulação."""
+    """Armazena os mapas e controla as regras de circulação."""
 
-    def __init__(self):
+    def __init__(self, fase):
 
-        # # = parede
-        # espaço = caminho
-        # E = saída
+        self._fase = fase
 
-        self._mapa = [
-            "#####################",
-            "#                   #",
-            "################# ###",
-            "#                   #",
-            "### #################",
-            "#                   #",
-            "################# ###",
-            "#                   #",
-            "### #################",
-            "#                   #",
-            "################# ###",
-            "#                  E#",
-            "#####################",
+        # Três mapas com dificuldades progressivas.
+        self._mapas = [
+            [
+                "#####################",
+                "#                   #",
+                "# ##### ##### ##### #",
+                "#                   #",
+                "##### ##### ##### ###",
+                "#                   #",
+                "# ##### ##### ##### #",
+                "#                   #",
+                "# ##### ##### ##### #",
+                "#                  E#",
+                "#####################"
+            ],
+
+            [
+                "#####################",
+                "#                   #",
+                "# ####### ### ##### #",
+                "#                   #",
+                "### ##### ##### #####",
+                "#                   #",
+                "# ##### ##### #######",
+                "#                   #",
+                "####### ##### ##### #",
+                "#                  E#",
+                "#####################"
+            ],
+
+            [
+                "#####################",
+                "#                   #",
+                "### ##### ##### #####",
+                "#                   #",
+                "##### ##### ##### ###",
+                "#                   #",
+                "### ##### ##### #####",
+                "#                   #",
+                "##### ##### ##### ###",
+                "#                  E#",
+                "#####################"
+            ]
         ]
+
+        # Seleciona o mapa de acordo com a fase.
+        self._mapa = self._mapas[fase - 1]
 
         self._altura = len(self._mapa)
         self._largura = len(self._mapa[0])
@@ -60,7 +90,7 @@ class Labirinto:
         return self._mapa[y][x] == "E"
 
     def desenhar(self, jogador):
-        """Desenha o labirinto e posiciona o jogador."""
+        """Desenha o mapa e posiciona o jogador."""
 
         for y, linha in enumerate(self._mapa):
 
