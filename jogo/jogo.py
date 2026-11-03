@@ -5,6 +5,7 @@ import readchar
 from jogo.jogador import Jogador
 from jogo.labirinto import Labirinto
 from jogo.pontuacao import Pontuacao
+from jogo.ranking import Ranking
 
 
 class Jogo:
@@ -19,6 +20,9 @@ class Jogo:
         self._jogador = None
         self._labirinto = None
         self._pontuacao = None
+
+        self._ranking = Ranking()
+        self._nome_jogador = ""
 
     def limpar_tela(self):
         """Limpa o terminal."""
@@ -79,26 +83,54 @@ class Jogo:
                 self._estado = "SAIR"
 
     def exibir_pontuacoes(self):
-        """Exibe pontuações demonstrativas."""
+        """Exibe o ranking dos dez melhores jogadores."""
 
         self.limpar_tela()
 
-        print("=" * 50)
-        print("                 PONTUACOES")
-        print("=" * 50)
+        resultados = self._ranking.obter_melhores()
+
+        print("=" * 65)
+        print("                       RANKING MAZE QUEST")
+        print("=" * 65)
 
         print()
-        print("Nesta versao, o ranking ainda e demonstrativo.")
-        print("Na Aula 4 implementaremos o salvamento em JSON.")
+
+        if not resultados:
+            print("Ainda nao existem pontuacoes registradas.")
+        else:
+            print(
+                f"{'POS.':<6}"
+                f"{'JOGADOR':<20}"
+                f"{'PONTOS':<12}"
+                f"{'TEMPO':<10}"
+                f"{'DATA'}"
+            )
+
+            print("-" * 65)
+
+            for posicao, resultado in enumerate(resultados, start=1):
+
+                nome = resultado.get("nome", "Desconhecido")
+                pontos = resultado.get("pontos", 0)
+                tempo = resultado.get("tempo", 0)
+                data = resultado.get("data", "-")
+
+                minutos = int(tempo // 60)
+                segundos = int(tempo % 60)
+
+                tempo_formatado = f"{minutos:02d}:{segundos:02d}"
+
+                print(
+                    f"{posicao:<6}"
+                    f"{nome[:18]:<20}"
+                    f"{pontos:<12}"
+                    f"{tempo_formatado:<10}"
+                    f"{data}"
+                )
 
         print()
-        print("Exemplo de pontuacoes:")
-        print("1 - Arthur       9500 pontos")
-        print("2 - Luna         8700 pontos")
-        print("3 - Kael         7900 pontos")
-
-        print()
-        print("Pressione qualquer tecla para voltar.")
+        print("=" * 65)
+        print("Pressione qualquer tecla para voltar ao menu.")
 
         readchar.readkey()
 
@@ -133,12 +165,44 @@ class Jogo:
         print("maior sera sua pontuacao.")
 
         print()
+        print("Seu resultado sera salvo no ranking")
+        print("quando concluir todas as fases.")
+
+        print()
         print("Pressione qualquer tecla para voltar.")
 
         readchar.readkey()
 
+    def cadastrar_jogador(self):
+        """Solicita o nome do jogador."""
+
+        self.limpar_tela()
+
+        print("=" * 50)
+        print("                 NOVA PARTIDA")
+        print("=" * 50)
+
+        print()
+
+        while True:
+
+            nome = input("Digite seu nome: ").strip()
+
+            if nome:
+                self._nome_jogador = nome[:20]
+                break
+
+            print("O nome nao pode ficar vazio.")
+
+        print()
+        print(f"Boa sorte, {self._nome_jogador}!")
+
+        input("Pressione ENTER para iniciar...")
+
     def iniciar_partida(self):
         """Inicializa uma nova campanha."""
+
+        self.cadastrar_jogador()
 
         self._fase_atual = 1
         self._pontuacao = Pontuacao()
@@ -211,6 +275,8 @@ class Jogo:
         print("=" * 50)
 
         print()
+        print(f"Jogador: {self._nome_jogador}")
+
         print(
             f"Fase: {self._fase_atual} - "
             f"{nomes_fases[self._fase_atual - 1]}"
@@ -246,6 +312,8 @@ class Jogo:
         print("=" * 50)
 
         print()
+        print(f"Parabens, {self._nome_jogador}!")
+
         print(f"Fase {self._fase_atual} concluida com sucesso!")
 
         print()
@@ -267,11 +335,18 @@ class Jogo:
         readchar.readkey()
 
     def finalizar_partida(self):
-        """Finaliza a campanha e mostra a pontuação final."""
+        """Finaliza a campanha e salva o resultado."""
 
         tempo_final = self._pontuacao.finalizar_cronometro()
 
         pontos = self._pontuacao.calcular_pontos()
+
+        # Salva o resultado do jogador no ranking.
+        self._ranking.adicionar_resultado(
+            self._nome_jogador,
+            tempo_final,
+            pontos
+        )
 
         self.limpar_tela()
 
@@ -279,6 +354,9 @@ class Jogo:
         print("                    PARABENS!")
         print("              CAMPEAO DO LABIRINTO!")
         print("=" * 50)
+
+        print()
+        print(f"Jogador: {self._nome_jogador}")
 
         print()
         print(
@@ -292,7 +370,7 @@ class Jogo:
         print("Voce concluiu todas as fases!")
 
         print()
-        print("Na Aula 4 seu resultado sera salvo no ranking.")
+        print("Seu resultado foi salvo no ranking!")
 
         print()
         print("Pressione qualquer tecla para voltar ao menu.")
