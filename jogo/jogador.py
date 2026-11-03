@@ -3,21 +3,39 @@ class Jogador:
     """Representa o personagem controlado pelo jogador."""
 
     def __init__(self, x, y):
-        # Atributos: informações que cada objeto Jogador possui.
-        self.x = x
-        self.y = y
-        self.simbolo = "P"
+        # Atributos internos do jogador.
+        self._x = x
+        self._y = y
+        self._simbolo = "P"
 
-    def mover(self, dx, dy, largura, altura):
-        """Atualiza a posição do jogador, respeitando os limites do mapa.
+    @property
+    def x(self):
+        """Permite consultar a posição horizontal."""
+        return self._x
 
-        Nesta primeira aula, o jogador ainda pode atravessar paredes internas.
-        A colisão com paredes será implementada na Aula 2.
-        """
-        nova_x = self.x + dx
-        nova_y = self.y + dy
+    @property
+    def y(self):
+        """Permite consultar a posição vertical."""
+        return self._y
 
-        # Por enquanto, impedimos apenas que o jogador saia dos limites.
-        if 0 <= nova_x < largura and 0 <= nova_y < altura:
-            self.x = nova_x
-            self.y = nova_y
+    @property
+    def simbolo(self):
+        return self._simbolo
+
+    def mover(self, dx, dy, labirinto):
+        """Move o jogador somente se a posição for permitida."""
+
+        nova_x = self._x + dx
+        nova_y = self._y + dy
+
+        if labirinto.pode_entrar(nova_x, nova_y):
+            self._x = nova_x
+            self._y = nova_y
+            return True
+
+        return False
+
+    def chegou_na_saida(self, labirinto):
+        """Verifica se o jogador alcançou a saída."""
+
+        return labirinto.eh_saida(self._x, self._y)
